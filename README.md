@@ -12,6 +12,20 @@ It is designed around how agents actually use tools, not around TMDB's endpoints
 - **Errors the agent can act on.** Unknown genres come back with the list of valid ones; a 404 tells the agent to search for a valid id first.
 - **Production basics.** In-memory TTL/LRU cache, retries with `Retry-After` on 429/5xx, request timeouts, and an HTTP mode with bearer auth and per-client rate limiting.
 
+### Measured output size
+
+Characters returned to the agent versus the raw TMDB response for the same request (`npm run smoke`, 14 Oct 2026):
+
+| Tool | Example | Tool output | Raw TMDB | Reduction |
+|---|---|---:|---:|---:|
+| `get_movie_details` | Inception, with credits and videos | 1,115 | 213,588 | 99.4% |
+| `get_watch_providers` | Inception, US | 432 | 88,595 | 99.5% |
+| `get_person_details` | Christopher Nolan, with credits | 2,350 | 96,965 | 97.5% |
+| `search_movies` | "Inception" | 4,184 | 7,063 | 40.7% |
+| `discover` | sci-fi on Netflix, score ≥ 7 | 8,179 | 12,920 | 36.6% |
+
+The large savings come from endpoints that return far more than a question needs: full cast and crew lists, every video, every country's streaming offers. Search and discover results are already lists of summaries, so the saving there comes from dropping image paths and internal fields.
+
 ## Tools
 
 | Tool | What it does |

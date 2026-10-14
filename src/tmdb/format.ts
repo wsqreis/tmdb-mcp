@@ -88,12 +88,10 @@ export function toTitleSummary(
   item: RawMovie | RawTv,
   genres: GenreIndex,
 ): TitleSummary {
-  if (mediaType === 'movie') {
-    const { title, ...rest } = toMovieSummary(item as RawMovie, genres);
-    return { mediaType, ...rest, title };
-  }
-  const { name, ...rest } = toTvSummary(item as RawTv, genres);
-  return { mediaType, ...rest, title: name };
+  const { id, year, rating, votes, genres: names, overview, ...rest } =
+    mediaType === 'movie' ? toMovieSummary(item as RawMovie, genres) : toTvSummary(item as RawTv, genres);
+  const title = 'title' in rest ? rest.title : rest.name;
+  return { mediaType, id, title, year, rating, votes, genres: names, overview };
 }
 
 export function toPersonSummary(person: RawPerson): PersonSummary {

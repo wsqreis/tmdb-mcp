@@ -19,7 +19,13 @@ const checks: Array<{ tool: string; args: Record<string, unknown>; rawPath: stri
   { tool: 'search_movies', args: { query: 'Inception' }, rawPath: '/search/movie', rawParams: { query: 'Inception' } },
   { tool: 'get_movie_details', args: { movieId: 27205 }, rawPath: '/movie/27205', rawParams: { append_to_response: 'credits,videos' } },
   { tool: 'get_person_details', args: { personId: 525 }, rawPath: '/person/525', rawParams: { append_to_response: 'combined_credits' } },
-  { tool: 'discover', args: { genres: ['sci-fi'], streamingOn: ['Netflix'], minRating: 7 }, rawPath: '/discover/movie', rawParams: { with_genres: '878' } },
+  {
+    tool: 'discover',
+    args: { genres: ['sci-fi'], streamingOn: ['Netflix'], minRating: 7 },
+    rawPath: '/discover/movie',
+    // The same filters the tool sends (Netflix is provider 8).
+    rawParams: { with_genres: '878', with_watch_providers: '8', watch_region: 'US', 'vote_average.gte': '7', 'vote_count.gte': '200', sort_by: 'popularity.desc', include_adult: 'false' },
+  },
   { tool: 'get_watch_providers', args: { mediaType: 'movie', id: 27205 }, rawPath: '/movie/27205/watch/providers' },
 ];
 
@@ -31,7 +37,7 @@ for (const check of checks) {
   const status = result.isError ? 'FAIL' : 'ok  ';
   failed ||= Boolean(result.isError);
   console.log(
-    `${status} ${check.tool.padEnd(20)} ${String(compact).padStart(7)} chars  (raw TMDB: ${original}, ${Math.round((1 - compact / original) * 100)}% smaller)`,
+    `${status} ${check.tool.padEnd(20)} ${String(compact).padStart(7)} chars  (raw TMDB: ${original}, ${(Math.floor((1 - compact / original) * 1000) / 10).toFixed(1)}% smaller)`,
   );
   if (result.isError) console.log(`     ${textOf(result)}`);
 }
